@@ -1,17 +1,37 @@
-import os
-from fetcher import MarketFetcher
+from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
+from telegram import Update
 from bot import MarketBot
-from dotenv import load_dotenv
-load_dotenv()
-fetcher = MarketFetcher(
-    exchange_api_key=os.getenv("EXCHANGE_API_KEY")
-)
+from fetcher import MarketFetcher
+import os
 
-bot = MarketBot(
-    token=os.getenv("TELEGRAM_BOT_TOKEN"),
-    fetcher=fetcher,
-)
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
-print("TELEGRAM:", os.getenv("TELEGRAM_BOT_TOKEN"))
-print("EXCHANGE:", os.getenv("EXCHANGE_API_KEY"))
-bot.run()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    fetcher = MarketFetcher(api_key=os.getenv("EXCHANGE_API_KEY"))
+    await fetcher.prewarm()
+
+    bot_app = MarketBot(fetcher=fetcher)
+    await bot_app.application.initialize()
+    await bot_app.application.start()
+    await bot_app.application.bot.set_webhook(f"{WEBHOOK_URL}/webhook")
+
+    app.state.bot_app = bot_app
+    app.state.fetcher = fetcher
+    yield
+
+    await bot_app.application.stop()
+    await bot_app.application.shutdown()
+    await fetcher.close()
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.post("/webhook")
+async def webhook(request: Request):
+    data = await request.json()
+    update = Update.de_json(data, app.state.bot_app.application.bot)
+    await app.state.bot_app.application.process_update(update)
+    return {"ok": True}
+

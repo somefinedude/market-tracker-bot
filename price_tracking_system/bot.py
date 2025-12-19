@@ -198,7 +198,7 @@ class MarketBot:
         )
 
     async def _silver(self, query):
-        data = await self.fetcher.get_latest_gold()  # same fetcher returns both gold & silver
+        data = await self.fetcher.get_latest_gold()
 
         text = (
             "📌 *Silver (Live)*\n\n"
@@ -217,6 +217,3 @@ class MarketBot:
 
     # -------------------- RUN --------------------
 
-    def run(self):
-        print("Bot is running…")
-        self.app.run_polling()

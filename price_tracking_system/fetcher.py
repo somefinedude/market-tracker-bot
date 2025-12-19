@@ -1,7 +1,5 @@
 import httpx
-from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from playwright.async_api import async_playwright
 
 
 class MarketFetcher:
