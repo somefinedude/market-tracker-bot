@@ -9,7 +9,7 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    fetcher = MarketFetcher(api_key=os.getenv("EXCHANGE_API_KEY"))
+    fetcher = MarketFetcher(exchange_api_key=os.getenv("EXCHANGE_API_KEY"))
     await fetcher.prewarm()
 
     bot_app = MarketBot(fetcher=fetcher)
