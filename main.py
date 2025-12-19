@@ -32,6 +32,6 @@ app = FastAPI(lifespan=lifespan)
 async def webhook(request: Request):
     data = await request.json()
     update = Update.de_json(data, app.state.bot_app.app.bot)
-    await app.state.bot_app.application.process_update(update)
+    await app.state.bot_app.app.process_update(update)
     return {"ok": True}
 
