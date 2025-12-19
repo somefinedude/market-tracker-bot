@@ -12,7 +12,7 @@ async def lifespan(app: FastAPI):
     fetcher = MarketFetcher(exchange_api_key=os.getenv("EXCHANGE_API_KEY"))
     await fetcher.prewarm()
 
-    bot_app = MarketBot(fetcher=fetcher)
+    bot_app = MarketBot(token=os.getenv("TELEGRAM_BOT_TOKEN"), fetcher=fetcher)
     await bot_app.application.initialize()
     await bot_app.application.start()
     await bot_app.application.bot.set_webhook(f"{WEBHOOK_URL}/webhook")
