@@ -13,16 +13,16 @@ async def lifespan(app: FastAPI):
     await fetcher.prewarm()
 
     bot_app = MarketBot(token=os.getenv("TELEGRAM_BOT_TOKEN"), fetcher=fetcher)
-    await bot_app.application.initialize()
-    await bot_app.application.start()
-    await bot_app.application.bot.set_webhook(f"{WEBHOOK_URL}/webhook")
+    await bot_app.app.initialize()
+    await bot_app.app.start()
+    await bot_app.app.bot.set_webhook(f"{WEBHOOK_URL}/webhook")
 
     app.state.bot_app = bot_app
     app.state.fetcher = fetcher
     yield
 
-    await bot_app.application.stop()
-    await bot_app.application.shutdown()
+    await bot_app.app.stop()
+    await bot_app.app.shutdown()
     await fetcher.close()
 
 app = FastAPI(lifespan=lifespan)
@@ -31,7 +31,7 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/webhook")
 async def webhook(request: Request):
     data = await request.json()
-    update = Update.de_json(data, app.state.bot_app.application.bot)
+    update = Update.de_json(data, app.state.bot_app.app.bot)
     await app.state.bot_app.application.process_update(update)
     return {"ok": True}
 
