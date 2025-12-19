@@ -67,6 +67,9 @@ class MarketFetcher:
 
     async def get_usd_aud(self):
         return (await self._get_all_rates()).get("AUD")
+    
+    async def get_usd_gbp(self):
+        return (await self._get_all_rates()).get("GBP")
 
     # -------------------- METALS --------------------
 

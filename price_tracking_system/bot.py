@@ -134,7 +134,8 @@ class MarketBot:
             [InlineKeyboardButton("USD / EUR", callback_data="usdeur")],
             [InlineKeyboardButton("USD / UZS", callback_data="usduzs")],
             [InlineKeyboardButton("USD / AUD", callback_data="usdaud")],
-            [InlineKeyboardButton("🔙 Go back", callback_data="market")],
+            [InlineKeyboardButton("USD / GBP", callback_data="usdgbp")],
+            [InlineKeyboardButton("🔙 Go back", callback_data="market")]
         ]
 
         await query.edit_message_text(
@@ -165,6 +166,7 @@ class MarketBot:
             "EUR": self.fetcher.get_usd_eur,
             "UZS": self.fetcher.get_usd_uzs,
             "AUD": self.fetcher.get_usd_aud,
+            "GBP": self.fetcher.get_usd_gbp,
         }
 
         rate = await rates[code]()
