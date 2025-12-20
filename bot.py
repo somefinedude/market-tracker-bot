@@ -142,7 +142,7 @@ class MarketBot:
             [InlineKeyboardButton("USD / UZS", callback_data="usduzs")],
             [InlineKeyboardButton("USD / AUD", callback_data="usdaud")],
             [InlineKeyboardButton("USD / GBP", callback_data="usdgbp")],
-            [InlineKeyboardButton("🌍 Custom pair", callback_data="custom_pair_info")],
+            [InlineKeyboardButton("🌍 Custom pair", callback_data="custom_pair_prompt")],
             [InlineKeyboardButton("🔙 Go back", callback_data="market")],
         ]
 
@@ -151,6 +151,8 @@ class MarketBot:
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
+
+
 
     async def _metals_menu(self, query):
         keyboard = [
