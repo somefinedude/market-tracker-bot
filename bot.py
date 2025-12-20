@@ -142,7 +142,7 @@ class MarketBot:
             [InlineKeyboardButton("USD / UZS", callback_data="usduzs")],
             [InlineKeyboardButton("USD / AUD", callback_data="usdaud")],
             [InlineKeyboardButton("USD / GBP", callback_data="usdgbp")],
-            [InlineKeyboardButton("🌍 Custom pair rate", callback_data="custompair")],
+            [InlineKeyboardButton("🌍 Custom pair", callback_data="custom_pair_info")],
             [InlineKeyboardButton("🔙 Go back", callback_data="market")],
         ]
 
