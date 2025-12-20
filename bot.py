@@ -191,7 +191,7 @@ class MarketBot:
 
     async def custompair(self, query):
         await query.edit_message_text(
-            text="🌍 *Custom pair*\n\nSend pair like:\n`AUD/UZS`",
+            text="🌍 *Custom pair*\n\nHere you can see exchange rate of your preferred pairs:\nPlease enter pairs in this format:\n`AUD/UZS`",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("🔙 Go back", callback_data="currencies")]]
@@ -208,6 +208,13 @@ class MarketBot:
 
         base, target = text.split("/", 1)
 
+        base.strip()
+        target.strip()
+
+        if not base.isalpha() or not target.isalpha():
+            await update.message.reply_text("❗ Use format like AUD/UZS")
+            return
+
         if len(base) != 3 or len(target) != 3:
             await update.message.reply_text("❗ Use format like AUD/UZS")
             return
@@ -215,7 +222,7 @@ class MarketBot:
         rate = await self.fetcher.get_custom_pair(base, target)
 
         if rate:
-            reply = f"💱 1 {base} = {rate} {target}"
+            reply = f"💱 1 {base} = {target} {rate:.6f}"
         else:
             reply = "⛔ Failed to fetch exchange rate"
 
