@@ -9,6 +9,8 @@ from telegram.ext import (
     CommandHandler,
     CallbackQueryHandler,
     ContextTypes,
+    MessageHandler,
+    filters,
 )
 
 from fetcher import MarketFetcher
@@ -43,6 +45,9 @@ class MarketBot:
     def _register_handlers(self):
         self.app.add_handler(CommandHandler("start", self.start))
         self.app.add_handler(CallbackQueryHandler(self.button_handler))
+        self.app.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, self._handle_custom_pair_input)
+        )
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
@@ -67,8 +72,8 @@ class MarketBot:
         await query.answer()
 
         handlers = {
-            "market": self._market_menu,
             "start": self._start_menu,
+            "market": self._market_menu,
             "info": self._info_menu,
             "currencies": self._currencies_menu,
             "metals": self._metals_menu,
@@ -79,6 +84,8 @@ class MarketBot:
             "usdeur": lambda q: self._currency(q, "EUR"),
             "usduzs": lambda q: self._currency(q, "UZS"),
             "usdaud": lambda q: self._currency(q, "AUD"),
+            "usdgbp": lambda q: self._currency(q, "GBP"),
+            "custompair": self.custom_pair_prompt,
         }
 
         handler = handlers.get(query.data)
@@ -135,7 +142,8 @@ class MarketBot:
             [InlineKeyboardButton("USD / UZS", callback_data="usduzs")],
             [InlineKeyboardButton("USD / AUD", callback_data="usdaud")],
             [InlineKeyboardButton("USD / GBP", callback_data="usdgbp")],
-            [InlineKeyboardButton("🔙 Go back", callback_data="market")]
+            [InlineKeyboardButton("🌍 Custom pair rate", callback_data="custompair")],
+            [InlineKeyboardButton("🔙 Go back", callback_data="market")],
         ]
 
         await query.edit_message_text(
@@ -157,7 +165,7 @@ class MarketBot:
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
-    # -------------------- DATA VIEWS --------------------
+    # -------------------- DATA --------------------
 
     async def _currency(self, query, code: str):
         rates = {
@@ -174,6 +182,43 @@ class MarketBot:
 
         await query.edit_message_text(
             text=text,
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("🔙 Go back", callback_data="currencies")]]
+            ),
+        )
+
+    async def custom_pair_prompt(self, query):
+        await query.edit_message_text(
+            text="🌍 *Custom pair*\n\nSend pair like:\n`AUD/UZS`",
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("🔙 Go back", callback_data="currencies")]]
+            ),
+        )
+
+    async def _handle_custom_pair_input(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        text = update.message.text.strip().upper()
+
+        if "/" not in text:
+            return
+
+        base, target = text.split("/", 1)
+
+        if len(base) != 3 or len(target) != 3:
+            await update.message.reply_text("❗ Use format like AUD/UZS")
+            return
+
+        rate = await self.fetcher.get_custom_pair(base, target)
+
+        if rate:
+            reply = f"💱 1 {base} = {rate} {target}"
+        else:
+            reply = "⛔ Failed to fetch exchange rate"
+
+        await update.message.reply_text(
+            reply,
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("🔙 Go back", callback_data="currencies")]]
             ),
@@ -214,6 +259,3 @@ class MarketBot:
                 [[InlineKeyboardButton("🔙 Go back", callback_data="metals")]]
             ),
         )
-
-    # -------------------- RUN --------------------
-

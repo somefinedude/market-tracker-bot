@@ -68,6 +68,29 @@ class MarketFetcher:
     
     async def get_usd_gbp(self):
         return (await self._get_all_rates()).get("GBP")
+    
+    async def get_custom_pair(self, base: str, target: str) -> float:
+        base = base.upper()
+        target = target.upper()
+
+        rates = await self._get_all_rates()
+
+        if base == "USD":
+            return rates.get(target)
+
+        if target == "USD":
+            return 1 / rates.get(base)
+
+        if base in rates and target in rates:
+            return rates[target] / rates[base]
+
+        # fallback to API
+        url = f"https://api.exchangerate.host/convert?from={base}&to={target}"
+        resp = await self._currency_client.get(url)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("result")
+
 
     # -------------------- METALS --------------------
 
