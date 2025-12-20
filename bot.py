@@ -208,8 +208,8 @@ class MarketBot:
 
         base, target = text.split("/", 1)
 
-        base.strip()
-        target.strip()
+        base = base.strip()
+        target = target.strip()
 
         if not base.isalpha() or not target.isalpha():
             await update.message.reply_text("❗ Use format like AUD/UZS")
@@ -222,7 +222,7 @@ class MarketBot:
         rate = await self.fetcher.get_custom_pair(base, target)
 
         if rate:
-            reply = f"💱 1 {base} = {target} {rate:.6f}"
+            reply = f"💱 1 {base} = {rate:.6f} {target}"
         else:
             reply = "⛔ Failed to fetch exchange rate"
 
