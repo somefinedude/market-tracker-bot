@@ -85,7 +85,7 @@ class MarketBot:
             "usduzs": lambda q: self._currency(q, "UZS"),
             "usdaud": lambda q: self._currency(q, "AUD"),
             "usdgbp": lambda q: self._currency(q, "GBP"),
-            "custompair": self.custom_pair_prompt,
+            "custompair": self.custompair,
         }
 
         handler = handlers.get(query.data)
@@ -142,7 +142,7 @@ class MarketBot:
             [InlineKeyboardButton("USD / UZS", callback_data="usduzs")],
             [InlineKeyboardButton("USD / AUD", callback_data="usdaud")],
             [InlineKeyboardButton("USD / GBP", callback_data="usdgbp")],
-            [InlineKeyboardButton("🌍 Custom pair", callback_data="custom_pair_prompt")],
+            [InlineKeyboardButton("🌍 Custom pair", callback_data="custompair")],
             [InlineKeyboardButton("🔙 Go back", callback_data="market")],
         ]
 
@@ -189,7 +189,7 @@ class MarketBot:
             ),
         )
 
-    async def custom_pair_prompt(self, query):
+    async def custompair(self, query):
         await query.edit_message_text(
             text="🌍 *Custom pair*\n\nSend pair like:\n`AUD/UZS`",
             parse_mode="Markdown",
