@@ -125,6 +125,59 @@ class MarketBot:
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
+
+    async def _silver(self, query):
+        data = await self.get_latest_gold()
+
+        text = (
+            "📌 *Silver (Live)*\n\n"
+            f"💲 {data['silver_usd']} USD / oz\n"
+            f"⚖️ Change: {data['silver_change']} USD ({data['silver_pct']}%)\n"
+            f"🕒 Updated: {data['timestamp']}"
+        )
+
+        await query.edit_message_text(
+            text=text,
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("🔙 Go back", callback_data="metals")]]
+            ),
+        )
+
+    # ←←←←← ADD YOUR METHOD HERE ↓↓↓↓↓
+
+    async def _handle_custom_pair_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        text = update.message.text.strip()
+        if "/" not in text:
+            return
+        parts = text.upper().split("/", 1)
+        if len(parts) != 2:
+            return
+        base, target = parts
+        base = base.strip()
+        target = target.strip()
+        if len(base) != 3 or len(target) != 3 or not base.isalpha() or not target.isalpha():
+            await update.message.reply_text(
+                "❗ Please use format like AUD/UZS (3-letter codes)",
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton("🔙 Back to Currencies", callback_data="currencies")]]
+                )
+            )
+            return
+        rate = await self.fetcher.get_custom_pair(base, target)
+        if rate is not None:
+            reply = f"💱 1 {base} = {rate:.6f} {target}"
+        else:
+            reply = "⛔ Failed to fetch rate (unsupported pair or service down)"
+        await update.message.reply_text(
+            reply,
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("🔙 Back to Currencies", callback_data="currencies")]]
+            )
+        )
+
+    # ←←←←← END OF METHOD
+
 async def _info_menu(self, query):
     text = (
         "*ℹ️ Welcome to Market Price Tracker Bot — your reliable, real-time companion for tracking key financial markets!*\n\n"

@@ -161,6 +161,10 @@ class MarketFetcher:
             if self._gold_cache:
                 return self._gold_cache
             raise
+    
+
+
+
 
     async def get_gold_price(self) -> Optional[float]:
         data = await self.get_latest_gold()
@@ -169,6 +173,9 @@ class MarketFetcher:
     async def get_silver_price(self) -> Optional[float]:
         data = await self.get_latest_gold()
         return data.get("silver_usd")
+    
+
+
 
     # -------------------- LIFECYCLE --------------------
 
