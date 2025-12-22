@@ -28,7 +28,7 @@ class MarketBot:
 
         self._register_handlers()
 
-    # -------------------- HANDLERS --------------------
+    # ############################# HANDLERS #####################################################################################################################
 
     def _register_handlers(self):
         self.app.add_handler(CommandHandler("start", self.start))
@@ -81,7 +81,7 @@ class MarketBot:
         if handler:
             await handler(query)
 
-    # -------------------- MENUS --------------------
+    # ############################# MENUS ####################################################################################################################
 
     async def _start_menu(self, query):
         keyboard = [
@@ -152,7 +152,7 @@ class MarketBot:
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
-    # -------------------- DATA LOGIC --------------------
+    # ############################### DATA LOGIC #######################################################################################################################
 
     async def _currency(self, query, code: str):
         # Maps codes to fetcher methods
