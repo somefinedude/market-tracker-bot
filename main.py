@@ -4,8 +4,27 @@ from telegram import Update
 from bot import MarketBot
 from fetcher import MarketFetcher
 import os
+import asyncio
+import httpx
+
 
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+
+
+async def keep_alive_loop():
+    await asyncio.sleep(30)
+    async with httpx.AsyncClient() as client:
+        while True:
+            try:
+                # Ping the /health route we define below
+                response = await client.get(f"{WEBHOOK_URL.rstrip('/')}/health")
+                print(f"Self-ping status: {response.status_code}")
+            except Exception as e:
+                print(f"Self-ping failed: {e}")
+            
+            # Wait 10 minutes (600 seconds) before pinging again
+            await asyncio.sleep(600)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,6 +38,7 @@ async def lifespan(app: FastAPI):
     await bot_app.app.start()
     await bot_app.app.bot.set_webhook(f"{WEBHOOK_URL}/webhook")
 
+    asyncio.create_task(keep_alive_loop())
     app.state.bot_app = bot_app
     app.state.fetcher = fetcher
     
@@ -30,6 +50,10 @@ async def lifespan(app: FastAPI):
     await fetcher.close()
 
 app = FastAPI(lifespan=lifespan)
+
+@app.get("/health")
+async def health_check():
+    return {"status": "alive", "msg": "I am awake!"}
 
 @app.post("/webhook")
 async def webhook(request: Request):
