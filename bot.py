@@ -263,7 +263,7 @@ async def _info_menu(self, query):
         if rate:
             reply = f"💱 1 {base} = {rate:.4f}  {target}"
         else:
-            reply = "⛔ Failed to fetch exchange rate"
+            reply = "⚠️ Pair not supported or service temporarily unavailable."
 
         await update.message.reply_text(
             reply,

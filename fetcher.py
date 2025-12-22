@@ -65,37 +65,49 @@ class MarketFetcher:
 
     async def get_usd_aud(self):
         return (await self._get_all_rates()).get("AUD")
-    
+
     async def get_usd_gbp(self):
         return (await self._get_all_rates()).get("GBP")
-    
-    async def get_custom_pair(self, base: str, target: str) -> float:
+
+    async def get_custom_pair(self, base: str, target: str) -> float | None:
         base = base.upper()
         target = target.upper()
 
         rates = await self._get_all_rates()
 
-        if base == "USD":
-            return rates.get(target)
+        # Direct: USD → XXX
+        if base == "USD" and target in rates:
+            rate = rates.get(target)
+            return round(rate, 6) if rate is not None else None
 
-        if target == "USD":
-            return 1 / rates.get(base)
+        # Inverse: XXX → USD
+        if target == "USD" and base in rates:
+            rate_base = rates.get(base)
+            if rate_base and rate_base != 0:
+                return round(1 / rate_base, 6)
 
+        # Cross rate: XXX → YYY (via USD)
         if base in rates and target in rates:
-            return rates[target] / rates[base]
+            rate_base = rates[base]
+            rate_target = rates[target]
+            if rate_base and rate_base != 0:
+                return round(rate_target / rate_base, 6)
 
-        # fallback to API
-        url = f"https://api.exchangerate.host/convert?from={base}&to={target}"
-        resp = await self._currency_client.get(url)
-        resp.raise_for_status()
-        data = resp.json()
-        return data.get("result")
+        # Fallback to free API
+        try:
+            url = f"https://api.exchangerate.host/convert?from={base}&to={target}"
+            resp = await self._currency_client.get(url, timeout=5)
+            resp.raise_for_status()
+            data = resp.json()
+            if data.get("success"):
+                return round(data["result"], 6)
+        except Exception:
+            return None
 
+        return None
 
     # -------------------- METALS --------------------
 
-
-    
     async def get_latest_gold(self):
         now = datetime.utcnow()
 
@@ -135,8 +147,6 @@ class MarketFetcher:
         data = await self.get_latest_gold()
         return data["silver_usd"]
 
-
-
     # -------------------- LIFECYCLE --------------------
 
     async def prewarm(self):
@@ -144,7 +154,6 @@ class MarketFetcher:
             await self._get_all_rates()
         except Exception as error:
             print(f"Currency prewarm failed! {error}")
-
 
         try:
             await self.get_latest_gold()
