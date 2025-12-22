@@ -125,14 +125,53 @@ class MarketBot:
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
-    async def _info_menu(self, query):
-        await query.edit_message_text(
-            "*ℹ️ Info*\n\nThis bot tracks market prices.",
-            parse_mode="Markdown",
-            reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("🔙 Go back", callback_data="start")]]
-            ),
-        )
+async def _info_menu(self, query):
+    text = (
+        "*ℹ️ Welcome to Market Price Tracker Bot — your reliable, real-time companion for tracking key financial markets!*\n\n"
+        "This bot provides up-to-date prices for precious metals and major currency exchange rates, all sourced from trusted professional APIs. "
+        "Everything is updated automatically so you always see the latest data without needing to refresh manually.\n\n"
+        
+        "🪙 *Precious Metals*\n"
+        "Live spot prices for Gold and Silver in USD per troy ounce, including:\n"
+        "• Current price\n"
+        "• Daily change in USD\n"
+        "• Percentage change (%)\n"
+        "• Exact update timestamp\n\n"
+        
+        "💵 *Currencies*\n"
+        "Real-time USD-based rates for popular pairs:\n"
+        "• USD / RUB\n"
+        "• USD / JPY\n"
+        "• USD / EUR\n"
+        "• USD / UZS\n"
+        "• USD / AUD\n"
+        "• USD / GBP\n\n"
+        
+        "🌍 *Custom Currency Pairs*\n"
+        "Need any other pair? Just send it in the format `XXX/YYY` (e.g., `AUD/GBP`, `UZS/RUB`, `EUR/JPY`). "
+        "The bot will instantly fetch and display the current exchange rate. Over 160 currencies supported!\n\n"
+        
+        "*Data Sources*\n"
+        "• Currency rates: exchangerate-api.com (major pairs) and exchangerate.host (custom pairs)\n"
+        "• Gold & Silver prices: goldprice.org live data feed\n\n"
+        
+        "*Why this bot?*\n"
+        "• Fast and lightweight — works instantly via inline keyboards\n"
+        "• No ads, no spam, no subscriptions\n"
+        "• Designed for daily quick checks by traders, travelers, expats, and anyone interested in markets\n\n"
+        
+        "*Developed as a personal project to deliver accurate, no-nonsense market data right in Telegram.*\n"
+        "Suggestions and feedback are always welcome!\n\n"
+        "Dev: @JustPythonMan 🚀"
+    )
+
+    await query.edit_message_text(
+        text=text,
+        parse_mode="Markdown",
+        reply_markup=InlineKeyboardMarkup(
+            [[InlineKeyboardButton("🔙 Go back", callback_data="start")]]
+        ),
+    )
 
     async def _currencies_menu(self, query):
         keyboard = [
@@ -222,7 +261,7 @@ class MarketBot:
         rate = await self.fetcher.get_custom_pair(base, target)
 
         if rate:
-            reply = f"💱 1 {base} = {rate:.6f} {target}"
+            reply = f"💱 1 {base} = {rate:.4f}  {target}"
         else:
             reply = "⛔ Failed to fetch exchange rate"
 
