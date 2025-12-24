@@ -1,4 +1,5 @@
 import os
+from db import log_user
 from telegram import (
     Update,
     InlineKeyboardButton,
@@ -39,6 +40,7 @@ class MarketBot:
         )
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        log_user(update.effective_user)
         keyboard = [
             [
                 InlineKeyboardButton("ℹ️ Info", callback_data="info"),

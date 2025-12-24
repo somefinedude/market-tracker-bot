@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 from telegram import Update
+from db import log_user
 from bot import MarketBot
 from fetcher import MarketFetcher
 import os
