@@ -2,7 +2,7 @@ import os
 import libsql_experimental as libsql
 
 conn = libsql.connect(
-    os.getenv("TURSO_DATABASE_URL"),
+    os.getenv("TURSO_DB_URL"),
     auth_token=os.getenv("TURSO_AUTH_TOKEN")
 )
 
