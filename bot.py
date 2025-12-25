@@ -61,6 +61,7 @@ class MarketBot:
     async def button_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         await query.answer()
+        log_user(update.effective_user)
 
         handlers = {
             "start": self._start_menu,

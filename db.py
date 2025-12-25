@@ -6,7 +6,6 @@ conn = libsql.connect(
     auth_token=os.getenv("TURSO_AUTH_TOKEN")
 )
 
-# Create table once
 conn.execute("""
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY,
@@ -18,7 +17,6 @@ CREATE TABLE IF NOT EXISTS users (
 """)
 conn.commit()
 
-# Function to add user
 def log_user(user):
     conn.execute(
         "INSERT OR IGNORE INTO users (user_id, username, first_name, language_code) VALUES (?, ?, ?, ?)",
